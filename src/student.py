@@ -1,34 +1,34 @@
 from tkinter import Tk, Canvas, Label, Frame, Entry, Button, W, E, Listbox, END
 import psycopg2
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '../.env')
+load_dotenv(dotenv_path)
 
 root = Tk()
 root.title("python & Postgresql")
 
+conn = psycopg2.connect(
+    dbname=os.environ.get('ENV_DB_NAME'),
+    user=os.environ.get('ENV_USER'),
+    password=os.environ.get('ENV_PASSWORD'),
+    host=os.environ.get('ENV_HOST'),
+    port=os.environ.get('EN_PORT')
+)
+
 def save_new_student(name, age, address):
-    conn = psycopg2.connect(
-        dbname="students_example",
-        user="postgres",
-        password="19570744",
-        host="localhost",
-        port="5432"
-    )
+
     cursor = conn.cursor()
     query = """INSERT INTO students(name, age, address) VALUES (%s,%s,%s)"""
     cursor.execute(query,(name, age, address))
     print("Data Saved")
     conn.commit()
-    conn.close()
     #refresh with new students
     display_students()
 
 def display_students():
-    conn = psycopg2.connect(
-        dbname="students_example",
-        user="postgres",
-        password="19570744",
-        host="localhost",
-        port="5432"
-    )
     cursor = conn.cursor()
     query = """SELECT * FROM students"""
     cursor.execute(query)
@@ -38,23 +38,14 @@ def display_students():
     for x in row:
         listbox.insert(END, x)
     conn.commit()
-    conn.close()
 
 def findStudent(id):
-    conn = psycopg2.connect(
-        dbname="students_example",
-        user="postgres",
-        password="19570744",
-        host="localhost",
-        port="5432"
-    )
     cursor = conn.cursor()
     query = """SELECT * FROM students WHERE id=%s"""
     cursor.execute(query, (id))
     row = cursor.fetchone()
     display_search_result(row)
     conn.commit()
-    conn.close()
 
 def display_search_result(row):
     listbox = Listbox(frame, width=20, height=1)
